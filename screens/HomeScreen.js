@@ -7,6 +7,7 @@ import ListingCard from '../components/ListingCard';
 import VendorDashboard from './VendorDashboard';
 import { useAuth } from '../context/AuthContext';
 import { useListings } from '../context/ListingContext';
+import { impactData } from '../data/mockData';
 
 const HomeScreen = ({ navigation }) => {
   const insets = useSafeAreaInsets();
@@ -32,7 +33,7 @@ const HomeScreen = ({ navigation }) => {
   const filteredListings = listings.filter((item) => {
     const matchesSearch = item.foodName.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
-    const matchesVendor = role === 'vendor' ? item.vendorName === 'Your Store' : true;
+    const matchesVendor = role === 'vendor' ? item.vendorName === (user?.name || 'Your Store') : true;
     return matchesSearch && matchesCategory && matchesVendor;
   });
 
@@ -62,11 +63,11 @@ const HomeScreen = ({ navigation }) => {
         <TextInput style={styles.searchInput} placeholder="Search for food..." placeholderTextColor={colors.grayDark} value={searchQuery} onChangeText={setSearchQuery} />
       </View>
       <View style={styles.impactCard}>
-        <View style={styles.impactItem}><Text style={styles.impactNumber}>254</Text><Text style={styles.impactLabel}>Meals Saved</Text></View>
+        <View style={styles.impactItem}><Text style={styles.impactNumber}>{impactData.totalMealsSaved}</Text><Text style={styles.impactLabel}>Meals Saved</Text></View>
         <View style={styles.impactDivider} />
-        <View style={styles.impactItem}><Text style={styles.impactNumber}>125.5kg</Text><Text style={styles.impactLabel}>CO₂ Saved</Text></View>
+        <View style={styles.impactItem}><Text style={styles.impactNumber}>{impactData.totalCO2Saved}kg</Text><Text style={styles.impactLabel}>CO₂ Saved</Text></View>
         <View style={styles.impactDivider} />
-        <View style={styles.impactItem}><Text style={styles.impactNumber}>12</Text><Text style={styles.impactLabel}>Vendors</Text></View>
+        <View style={styles.impactItem}><Text style={styles.impactNumber}>{impactData.totalVendors}</Text><Text style={styles.impactLabel}>Vendors</Text></View>
       </View>
       <View style={styles.categoryContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>

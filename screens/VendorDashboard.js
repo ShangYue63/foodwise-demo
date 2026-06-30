@@ -4,12 +4,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../styles/colors';
 import { useListings } from '../context/ListingContext';
+import { useAuth } from '../context/AuthContext';
 
 const VendorDashboard = ({ navigation, onLogout }) => {
   const insets = useSafeAreaInsets();
+  const { user } = useAuth();
   const { listings, addListing, updateListing } = useListings();
+  const vendorName = user?.name || 'Your Store';
 
-  const vendorListings = listings.filter(l => l.vendorName === 'Your Store');
+  const vendorListings = listings.filter(l => l.vendorName === vendorName);
 
   const vendorStats = {
     totalListings: vendorListings.length,
@@ -57,7 +60,7 @@ const VendorDashboard = ({ navigation, onLogout }) => {
     } else {
       const newListing = {
         id: Date.now().toString(),
-        vendorName: 'Your Store',
+        vendorName: vendorName,
         vendorImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=50&h=50&fit=crop&crop=face',
         foodName: modalFoodName.trim(),
         description: 'Fresh and delicious!',
@@ -91,7 +94,7 @@ const VendorDashboard = ({ navigation, onLogout }) => {
     <View style={styles.container}>
       <View style={[styles.vendorHeader, { paddingTop: insets.top + 16 }]}>
         <View>
-          <Text style={styles.vendorTitle}>Your Store</Text>
+          <Text style={styles.vendorTitle}>{vendorName}</Text>
           <Text style={styles.vendorSubtitle}>Vendor Dashboard</Text>
         </View>
         <TouchableOpacity style={styles.logoutButton} onPress={onLogout}>

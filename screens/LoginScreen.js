@@ -9,6 +9,7 @@ const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('customer');
+  const [storeName, setStoreName] = useState('');
   const [loading, setLoading] = useState(false);
 
   // Reset loading state when screen comes into focus
@@ -23,7 +24,8 @@ const LoginScreen = ({ navigation }) => {
   const handleLogin = () => {
     if (email && password) {
       setLoading(true);
-      login(email, role);
+      const vendorName = role === 'vendor' && storeName.trim() ? storeName.trim() : null;
+      login(email, role, vendorName);
       navigation.navigate('Home', { role });
     }
   };
@@ -55,6 +57,12 @@ const LoginScreen = ({ navigation }) => {
             <Text style={styles.label}>Password</Text>
             <TextInput style={styles.input} placeholder="Enter your password" placeholderTextColor={colors.grayDark} value={password} onChangeText={setPassword} secureTextEntry />
           </View>
+          {role === 'vendor' && (
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Store Name</Text>
+              <TextInput style={styles.input} placeholder="e.g. Kedai Kopi JB" placeholderTextColor={colors.grayDark} value={storeName} onChangeText={setStoreName} />
+            </View>
+          )}
           
           <Button title="Login" onPress={handleLogin} loading={loading} />
 

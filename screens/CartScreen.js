@@ -3,9 +3,11 @@ import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../styles/colors';
 import Button from '../components/Button';
+import { useListings } from '../context/ListingContext';
 
 const CartScreen = ({ route, navigation }) => {
   const { listing, quantity } = route.params || {};
+  const { updateListing } = useListings();
   const [isConfirmed, setIsConfirmed] = useState(false);
 
   if (!listing) return (<View style={styles.emptyContainer}><Text>Cart is empty</Text></View>);
@@ -15,10 +17,15 @@ const CartScreen = ({ route, navigation }) => {
 
   const handleConfirmOrder = () => {
     setIsConfirmed(true);
+
+    // Decrement inventory
+    const newQuantity = Math.max(0, listing.quantity - quantity);
+    updateListing(listing.id, { quantity: newQuantity });
+
     const qrId = `FOODWISE-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
     setTimeout(() => {
       navigation.navigate('QRCode', {
-        order: { id: qrId, listing, quantity, totalPrice, pickupTime: new Date().toISOString() },
+        order: { id: qrId, listing: { ...listing, quantity: newQuantity }, quantity, totalPrice, pickupTime: new Date().toISOString() },
       });
     }, 1000);
   };
