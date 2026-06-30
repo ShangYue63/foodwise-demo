@@ -7,9 +7,27 @@ A React Native (Expo) mobile application for reducing food waste by connecting u
 Before running the app, make sure you have the following installed:
 
 - **Node.js** (v16 or later)
-- **npm** or **yarn**
+- **npm**
 - **Expo CLI** — Install globally via `npm install -g expo-cli`
 - A mobile device with the **Expo Go** app installed (iOS / Android), or an emulator / simulator
+
+### Installing Node.js
+
+**macOS (Homebrew):**
+
+First, [install Homebrew](https://brew.sh/) (if not already installed), then run:
+
+```bash
+brew install node
+```
+
+**Windows (Scoop):**
+
+First, [install Scoop](https://scoop.sh/) (if not already installed), then run:
+
+```powershell
+scoop install nodejs
+```
 
 ## Installation
 
@@ -24,12 +42,6 @@ Before running the app, make sure you have the following installed:
 
    ```bash
    npm install
-   ```
-
-   or
-
-   ```bash
-   yarn install
    ```
 
 ## Running the App
