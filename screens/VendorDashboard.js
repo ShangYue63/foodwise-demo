@@ -31,11 +31,23 @@ const VendorDashboard = ({ navigation, onLogout }) => {
   const [editingListing, setEditingListing] = useState(null);
   const [modalFoodName, setModalFoodName] = useState('');
   const [modalPrice, setModalPrice] = useState('');
+  const [modalPickupStart, setModalPickupStart] = useState('');
+  const [modalPickupEnd, setModalPickupEnd] = useState('');
+
+  const getTodayString = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
   const handleOpenAddModal = () => {
     setEditingListing(null);
     setModalFoodName('');
     setModalPrice('');
+    setModalPickupStart('');
+    setModalPickupEnd('');
     setModalVisible(true);
   };
 
@@ -43,6 +55,8 @@ const VendorDashboard = ({ navigation, onLogout }) => {
     setEditingListing(listing);
     setModalFoodName(listing.foodName);
     setModalPrice(String(listing.price));
+    setModalPickupStart(listing.pickupStart || '');
+    setModalPickupEnd(listing.pickupEnd || '');
     setModalVisible(true);
   };
 
@@ -52,10 +66,26 @@ const VendorDashboard = ({ navigation, onLogout }) => {
     const price = parseFloat(modalPrice);
     if (isNaN(price) || price < 0) return;
 
+    const today = getTodayString();
+
+    // Build pickup start/end from user input or default to today's date + evening times
+    let pickupStart = modalPickupStart.trim();
+    let pickupEnd = modalPickupEnd.trim();
+
+    if (pickupStart && !pickupStart.includes('-')) {
+      // User only entered a time like "18:00", prepend today's date
+      pickupStart = `${today} ${pickupStart}`;
+    }
+    if (pickupEnd && !pickupEnd.includes('-')) {
+      pickupEnd = `${today} ${pickupEnd}`;
+    }
+
     if (editingListing) {
       updateListing(editingListing.id, {
         foodName: modalFoodName.trim(),
         price,
+        ...(pickupStart ? { pickupStart } : {}),
+        ...(pickupEnd ? { pickupEnd } : {}),
       });
     } else {
       const newListing = {
@@ -69,7 +99,8 @@ const VendorDashboard = ({ navigation, onLogout }) => {
         price: price,
         originalPrice: Math.round(price * 2),
         quantity: 10,
-        expiryTime: '2026-07-02 20:00',
+        pickupStart: pickupStart || `${today} 18:00`,
+        pickupEnd: pickupEnd || `${today} 19:00`,
         image: 'https://images.unsplash.com/photo-1596797038530-2c107229654b?w=400&h=300&fit=crop',
         isBlindBox: false,
         distance: '0.0 km',
@@ -80,6 +111,8 @@ const VendorDashboard = ({ navigation, onLogout }) => {
     setModalVisible(false);
     setModalFoodName('');
     setModalPrice('');
+    setModalPickupStart('');
+    setModalPickupEnd('');
     setEditingListing(null);
   };
 
@@ -87,6 +120,8 @@ const VendorDashboard = ({ navigation, onLogout }) => {
     setModalVisible(false);
     setModalFoodName('');
     setModalPrice('');
+    setModalPickupStart('');
+    setModalPickupEnd('');
     setEditingListing(null);
   };
 
@@ -205,6 +240,24 @@ const VendorDashboard = ({ navigation, onLogout }) => {
               value={modalPrice}
               onChangeText={setModalPrice}
               keyboardType="decimal-pad"
+            />
+
+            <Text style={styles.modalLabel}>Pickup Start Time (HH:MM)</Text>
+            <TextInput
+              style={styles.modalInput}
+              placeholder="e.g. 18:00"
+              placeholderTextColor="#999"
+              value={modalPickupStart}
+              onChangeText={setModalPickupStart}
+            />
+
+            <Text style={styles.modalLabel}>Pickup End Time (HH:MM)</Text>
+            <TextInput
+              style={styles.modalInput}
+              placeholder="e.g. 19:00"
+              placeholderTextColor="#999"
+              value={modalPickupEnd}
+              onChangeText={setModalPickupEnd}
             />
 
             <View style={styles.modalButtons}>
