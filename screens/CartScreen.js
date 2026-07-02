@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../styles/colors';
 import Button from '../components/Button';
@@ -8,29 +8,42 @@ import { useImpact } from '../context/ImpactContext';
 
 const CartScreen = ({ route, navigation }) => {
   const { listing, quantity } = route.params || {};
-  const { updateListing } = useListings();
+  const { listings, updateListing } = useListings();
   const { addImpact } = useImpact();
   const [isConfirmed, setIsConfirmed] = useState(false);
 
   if (!listing) return (<View style={styles.emptyContainer}><Text>Cart is empty</Text></View>);
 
-  const totalPrice = listing.price * quantity;
-  const isFree = listing.priceTier === 'free';
+  // Use live listing data from context to ensure inventory is up-to-date
+  const liveListing = listings.find(l => l.id === listing.id) || listing;
+
+  const totalPrice = liveListing.price * quantity;
+  const isFree = liveListing.priceTier === 'free';
 
   const handleConfirmOrder = () => {
+    // Check live inventory before placing order
+    if (liveListing.quantity === 0) {
+      Alert.alert('Out of Stock', 'Sorry, this item is no longer available.');
+      return;
+    }
+    if (liveListing.quantity < quantity) {
+      Alert.alert('Insufficient Stock', `Only ${liveListing.quantity} item(s) available. Please adjust your quantity.`);
+      return;
+    }
+
     setIsConfirmed(true);
 
     // Record impact: mealsSaved = quantity, CO2 = quantity * 0.5kg
-    addImpact(quantity, listing.vendorName);
+    addImpact(quantity, liveListing.vendorName);
 
     // Decrement inventory
-    const newQuantity = Math.max(0, listing.quantity - quantity);
-    updateListing(listing.id, { quantity: newQuantity });
+    const newQuantity = Math.max(0, liveListing.quantity - quantity);
+    updateListing(liveListing.id, { quantity: newQuantity });
 
     const qrId = `FOODWISE-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
     setTimeout(() => {
       navigation.navigate('QRCode', {
-        order: { id: qrId, listing: { ...listing, quantity: newQuantity }, quantity, totalPrice, pickupTime: new Date().toISOString() },
+        order: { id: qrId, listing: { ...liveListing, quantity: newQuantity }, quantity, totalPrice, pickupTime: new Date().toISOString() },
       });
     }, 1000);
   };

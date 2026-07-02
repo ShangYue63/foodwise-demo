@@ -3,7 +3,7 @@ import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { colors } from '../styles/colors';
 
 const ListingCard = ({ listing, onPress }) => {
-  const { foodName, vendorName, price, originalPrice, image, pickupStart, pickupEnd, isBlindBox, priceTier, distance } = listing;
+  const { foodName, vendorName, price, originalPrice, image, pickupStart, pickupEnd, isBlindBox, priceTier, distance, quantity } = listing;
 
   const getPriceTagColor = () => {
     if (priceTier === 'free') return colors.success;
@@ -34,9 +34,11 @@ const ListingCard = ({ listing, onPress }) => {
   };
 
   const expired = isExpired();
+  const outOfStock = quantity === 0;
+  const isDisabled = expired || outOfStock;
 
   return (
-    <TouchableOpacity style={[styles.card, expired && styles.cardExpired]} onPress={onPress} activeOpacity={0.8} disabled={expired}>
+    <TouchableOpacity style={[styles.card, isDisabled && styles.cardExpired]} onPress={onPress} activeOpacity={0.8} disabled={isDisabled}>
       <Image 
         source={typeof image === 'string' ? { uri: image } : image} 
         style={[styles.image, isBlindBox && styles.blindBoxImage]}
@@ -50,6 +52,11 @@ const ListingCard = ({ listing, onPress }) => {
       {expired && (
         <View style={styles.expiredOverlay}>
           <Text style={styles.expiredText}>EXPIRED</Text>
+        </View>
+      )}
+      {outOfStock && !expired && (
+        <View style={styles.soldOutOverlay}>
+          <Text style={styles.soldOutText}>SOLD OUT</Text>
         </View>
       )}
       <View style={styles.content}>
@@ -99,6 +106,8 @@ const styles = StyleSheet.create({
   price: { fontSize: 18, fontWeight: 'bold', color: colors.primary },
   metaContainer: { flexDirection: 'row', alignItems: 'center' },
   metaText: { fontSize: 12, color: colors.grayDark, marginLeft: 12 },
+  soldOutOverlay: { position: 'absolute', top: 12, left: 12, backgroundColor: colors.danger, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
+  soldOutText: { color: colors.white, fontWeight: 'bold', fontSize: 11 },
 });
 
 export default ListingCard;

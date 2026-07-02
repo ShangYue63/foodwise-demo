@@ -19,7 +19,7 @@ const HomeScreen = ({ navigation }) => {
   const [timeRange, setTimeRange] = useState('weekly');
   const impact = useImpact();
 
-  const categories = ['All', 'Halal', 'Non-Halal', 'Veggie'];
+  const categories = ['All', 'Halal', 'Non-Halal', 'Vegetarian'];
 
   // Pull-to-refresh state (must be before any conditional returns)
   const [refreshing, setRefreshing] = useState(false);
