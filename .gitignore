@@ -17,3 +17,31 @@ web-build/
 # OS files
 .DS_Store
 Thumbs.db
+
+# iOS specific
+ios/Pods/
+ios/DerivedData/
+
+# Android specific
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+
+# Logs
+*.log
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# Testing
+coverage/
+.nyc_output/
+
+# IDE specific
+.vscode/
+.idea/
+*.iml
+
+# Optional: Keep package-lock.json committed (recommended for npm)
+# package-lock.json is NOT ignored - this ensures consistent installs across team
