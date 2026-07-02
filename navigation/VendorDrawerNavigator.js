@@ -9,6 +9,7 @@ import VendorDashboardScreen from '../screens/vendor/VendorDashboardScreen';
 import VendorOrdersScreen from '../screens/vendor/VendorOrdersScreen';
 import VendorListingsScreen from '../screens/vendor/VendorListingsScreen';
 import VendorOrderDetailScreen from '../screens/vendor/VendorOrderDetailScreen';
+import VendorScannerScreen from '../screens/vendor/VendorScannerScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -85,6 +86,11 @@ const VendorDrawerNavigator = ({ onLogout }) => {
       <Drawer.Screen
         name="VendorOrderDetail"
         component={VendorOrderDetailScreen}
+        options={{ drawerLabel: () => null, drawerItemStyle: { display: 'none' } }}
+      />
+      <Drawer.Screen
+        name="VendorScanner"
+        component={VendorScannerScreen}
         options={{ drawerLabel: () => null, drawerItemStyle: { display: 'none' } }}
       />
     </Drawer.Navigator>

@@ -125,18 +125,29 @@ const VendorOrderDetailScreen = ({ route, navigation }) => {
           </View>
         </View>
 
-        {/* Action Button */}
-        {order.status !== 'Picked Up' && (
+        {/* Action Buttons */}
+        {order.status === 'Pending' && (
+          <TouchableOpacity style={[styles.actionButton, { backgroundColor: colors.success }]} onPress={() => alert(`Order ${order.id} marked as Ready!`)}>
+            <Ionicons name="checkmark-circle-outline" size={22} color={colors.white} />
+            <Text style={styles.actionButtonText}>Mark as Ready</Text>
+          </TouchableOpacity>
+        )}
+
+        {order.status === 'Ready' && (
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => {
-              // TODO: Implement mark as picked up logic
-              alert(`Order ${order.id} marked as picked up!`);
-            }}
+            onPress={() => navigation.navigate('VendorScanner', { expectedOrder: order })}
           >
-            <Ionicons name="checkmark-circle-outline" size={22} color={colors.white} />
-            <Text style={styles.actionButtonText}>Mark as Picked Up</Text>
+            <Ionicons name="scan-outline" size={22} color={colors.white} />
+            <Text style={styles.actionButtonText}>Scan QR Code to Confirm Pickup</Text>
           </TouchableOpacity>
+        )}
+
+        {order.status === 'Picked Up' && (
+          <View style={styles.completedBanner}>
+            <Ionicons name="checkmark-done-circle" size={24} color={colors.success} />
+            <Text style={styles.completedText}>Order Completed</Text>
+          </View>
         )}
 
         <View style={{ height: 40 }} />
@@ -215,6 +226,18 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   actionButtonText: { fontSize: 16, fontWeight: '600', color: colors.white },
+  completedBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#E8F5E9',
+    borderRadius: 16,
+    padding: 16,
+    marginHorizontal: 12,
+    marginTop: 16,
+    gap: 8,
+  },
+  completedText: { fontSize: 16, fontWeight: '600', color: colors.success },
 });
 
 export default VendorOrderDetailScreen;

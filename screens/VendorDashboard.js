@@ -335,6 +335,29 @@ const VendorDashboard = ({ navigation, onLogout }) => {
                   <Text style={styles.pickupDetailLabel}>Ordered</Text>
                   <Text style={styles.pickupDetailValue}>{selectedOrder.time}</Text>
                 </View>
+
+                {/* Status-based action buttons */}
+                {selectedOrder.status === 'Pending' && (
+                  <TouchableOpacity style={[styles.pickupActionButton, { backgroundColor: colors.success, marginTop: 20 }]} onPress={() => alert(`Order ${selectedOrder.id} marked as Ready!`)}>
+                    <Ionicons name="checkmark-circle-outline" size={20} color={colors.white} />
+                    <Text style={styles.pickupActionText}>Mark as Ready</Text>
+                  </TouchableOpacity>
+                )}
+                {selectedOrder.status === 'Ready' && (
+                  <TouchableOpacity style={[styles.pickupActionButton, { backgroundColor: colors.primary, marginTop: 20 }]} onPress={() => {
+                    setPickupModalVisible(false);
+                    navigation.navigate('VendorScanner', { expectedOrder: selectedOrder });
+                  }}>
+                    <Ionicons name="scan-outline" size={20} color={colors.white} />
+                    <Text style={styles.pickupActionText}>Scan QR Code to Confirm Pickup</Text>
+                  </TouchableOpacity>
+                )}
+                {selectedOrder.status === 'Picked Up' && (
+                  <View style={[styles.pickupActionButton, { backgroundColor: '#E8F5E9', marginTop: 20, justifyContent: 'center' }]}>
+                    <Ionicons name="checkmark-done-circle" size={20} color={colors.success} />
+                    <Text style={[styles.pickupActionText, { color: colors.success }]}>Order Completed</Text>
+                  </View>
+                )}
               </>
             )}
           </View>
@@ -391,6 +414,8 @@ const styles = StyleSheet.create({
   pickupDetailRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.gray, gap: 8 },
   pickupDetailLabel: { fontSize: 14, color: colors.grayDark, flex: 1, marginLeft: 4 },
   pickupDetailValue: { fontSize: 14, color: colors.dark, fontWeight: '500', textAlign: 'right' },
+  pickupActionButton: { flexDirection: 'row', alignItems: 'center', padding: 14, borderRadius: 12, gap: 8 },
+  pickupActionText: { fontSize: 15, fontWeight: '600', color: colors.white },
 });
 
 export default VendorDashboard;

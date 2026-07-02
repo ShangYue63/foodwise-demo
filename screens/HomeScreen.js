@@ -12,7 +12,7 @@ import { useImpact } from '../context/ImpactContext';
 const HomeScreen = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const { user, logout } = useAuth();
-  const { listings } = useListings();
+  const { listings, debugMode, toggleDebugMode } = useListings();
   const role = user?.role || 'customer';
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -55,9 +55,17 @@ const HomeScreen = ({ navigation }) => {
       {/* Customer Header */}
       <View style={styles.customerHeaderRow}>
         <Text style={styles.customerGreeting}>👋 Welcome back!</Text>
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Ionicons name="log-out-outline" size={22} color={colors.grayDark} />
-        </TouchableOpacity>
+        <View style={styles.headerRight}>
+          <TouchableOpacity style={[styles.debugButton, debugMode && styles.debugButtonActive]} onPress={toggleDebugMode}>
+            <Ionicons name="bug" size={18} color={debugMode ? colors.white : colors.grayDark} />
+            <Text style={[styles.debugButtonText, debugMode && styles.debugButtonTextActive]}>
+              {debugMode ? 'Debug: ON' : 'Debug'}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Ionicons name="log-out-outline" size={22} color={colors.grayDark} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.searchContainer}>
@@ -108,7 +116,7 @@ const HomeScreen = ({ navigation }) => {
     <View style={styles.container}>
       <FlatList
         data={filteredListings}
-        renderItem={({ item }) => <ListingCard listing={item} onPress={() => navigation.navigate('Detail', { listing: item })} />}
+        renderItem={({ item }) => <ListingCard listing={item} onPress={() => navigation.navigate('Detail', { listing: item })} debugMode={debugMode} />}
         keyExtractor={(item) => item.id}
         ListHeaderComponent={renderHeader}
         ListEmptyComponent={renderEmptyState}
@@ -155,6 +163,19 @@ const styles = StyleSheet.create({
   emptySubtext: { fontSize: 14, color: colors.grayDark, marginTop: 4 },
 
   logoutButton: { padding: 8 },
+  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  debugButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 16,
+    backgroundColor: colors.gray,
+    gap: 4,
+  },
+  debugButtonText: { fontSize: 13, fontWeight: '600', color: colors.grayDark },
+  debugButtonTextActive: { color: colors.white },
+  debugButtonActive: { backgroundColor: colors.primary },
 });
 
 export default HomeScreen;

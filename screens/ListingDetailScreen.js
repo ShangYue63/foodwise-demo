@@ -3,9 +3,11 @@ import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'rea
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../styles/colors';
 import Button from '../components/Button';
+import { useListings } from '../context/ListingContext';
 
 const ListingDetailScreen = ({ route, navigation }) => {
   const { listing } = route.params;
+  const { debugMode } = useListings();
   const [quantity, setQuantity] = useState(1);
   const { foodName, vendorName, description, price, originalPrice, image, pickupStart, pickupEnd, isBlindBox, priceTier, category, quantity: maxQuantity, distance } = listing;
 
@@ -24,6 +26,7 @@ const ListingDetailScreen = ({ route, navigation }) => {
   };
 
   const isExpired = () => {
+    if (debugMode) return false;
     if (!pickupEnd) return false;
     return new Date() > new Date(pickupEnd);
   };

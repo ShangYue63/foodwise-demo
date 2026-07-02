@@ -8,6 +8,7 @@ export const useListings = () => useContext(ListingContext);
 export const ListingProvider = ({ children }) => {
   // Start with a mutable copy of mockListings
   const [listings, setListings] = useState([...mockListings]);
+  const [debugMode, setDebugMode] = useState(false);
 
   const addListing = (newListing) => {
     setListings(prev => [...prev, newListing]);
@@ -19,8 +20,12 @@ export const ListingProvider = ({ children }) => {
     );
   };
 
+  const toggleDebugMode = () => {
+    setDebugMode(prev => !prev);
+  };
+
   return (
-    <ListingContext.Provider value={{ listings, addListing, updateListing }}>
+    <ListingContext.Provider value={{ listings, addListing, updateListing, debugMode, toggleDebugMode }}>
       {children}
     </ListingContext.Provider>
   );

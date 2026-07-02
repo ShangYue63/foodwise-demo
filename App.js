@@ -14,6 +14,8 @@ import ListingDetailScreen from './screens/ListingDetailScreen';
 import CartScreen from './screens/CartScreen';
 import QRCodeScreen from './screens/QRCodeScreen';
 import ImpactScreen from './screens/ImpactScreen';
+import VendorScannerScreen from './screens/vendor/VendorScannerScreen';
+import VendorOrderDetailScreen from './screens/vendor/VendorOrderDetailScreen';
 
 const Stack = createStackNavigator();
 
@@ -71,6 +73,16 @@ export default function App() {
             name="Impact" 
             component={ImpactScreen} 
             options={{ title: 'Your Impact' }}
+          />
+          <Stack.Screen 
+            name="VendorScanner" 
+            component={VendorScannerScreen} 
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen 
+            name="VendorOrderDetail" 
+            component={VendorOrderDetailScreen} 
+            options={{ headerShown: false }}
           />
         </Stack.Navigator>
       </NavigationContainer>

@@ -4,3 +4,6 @@ node_modules/
 web-build/
 *.hbc
 *.hbc.map
+dist/
+node_modules/
+dist/

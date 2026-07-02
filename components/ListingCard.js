@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { colors } from '../styles/colors';
 
-const ListingCard = ({ listing, onPress }) => {
+const ListingCard = ({ listing, onPress, debugMode }) => {
   const { foodName, vendorName, price, originalPrice, image, pickupStart, pickupEnd, isBlindBox, priceTier, distance, quantity } = listing;
 
   const getPriceTagColor = () => {
@@ -29,6 +29,7 @@ const ListingCard = ({ listing, onPress }) => {
   };
 
   const isExpired = () => {
+    if (debugMode) return false;
     if (!pickupEnd) return false;
     return new Date() > new Date(pickupEnd);
   };
