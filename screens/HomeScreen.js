@@ -7,7 +7,7 @@ import ListingCard from '../components/ListingCard';
 import VendorDashboard from './VendorDashboard';
 import { useAuth } from '../context/AuthContext';
 import { useListings } from '../context/ListingContext';
-import { impactData } from '../data/mockData';
+import { useImpact } from '../context/ImpactContext';
 
 const HomeScreen = ({ navigation }) => {
   const insets = useSafeAreaInsets();
@@ -17,6 +17,7 @@ const HomeScreen = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [timeRange, setTimeRange] = useState('weekly');
+  const impact = useImpact();
 
   const categories = ['All', 'Halal', 'Non-Halal', 'Veggie'];
 
@@ -77,11 +78,11 @@ const HomeScreen = ({ navigation }) => {
         ))}
       </View>
       <View style={styles.impactCard}>
-        <View style={styles.impactItem}><Text style={styles.impactNumber}>{impactData[timeRange].mealsSaved}</Text><Text style={styles.impactLabel}>Meals Saved</Text></View>
+        <View style={styles.impactItem}><Text style={styles.impactNumber}>{impact[timeRange].mealsSaved}</Text><Text style={styles.impactLabel}>Meals Saved</Text></View>
         <View style={styles.impactDivider} />
-        <View style={styles.impactItem}><Text style={styles.impactNumber}>{impactData[timeRange].co2Saved}kg</Text><Text style={styles.impactLabel}>CO₂ Saved</Text></View>
+        <View style={styles.impactItem}><Text style={styles.impactNumber}>{impact[timeRange].co2Saved}kg</Text><Text style={styles.impactLabel}>CO₂ Saved</Text></View>
         <View style={styles.impactDivider} />
-        <View style={styles.impactItem}><Text style={styles.impactNumber}>{impactData[timeRange].vendors}</Text><Text style={styles.impactLabel}>Vendors</Text></View>
+        <View style={styles.impactItem}><Text style={styles.impactNumber}>{impact[timeRange].vendors}</Text><Text style={styles.impactLabel}>Vendors</Text></View>
       </View>
       <View style={styles.categoryContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>

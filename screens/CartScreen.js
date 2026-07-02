@@ -4,10 +4,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../styles/colors';
 import Button from '../components/Button';
 import { useListings } from '../context/ListingContext';
+import { useImpact } from '../context/ImpactContext';
 
 const CartScreen = ({ route, navigation }) => {
   const { listing, quantity } = route.params || {};
   const { updateListing } = useListings();
+  const { addImpact } = useImpact();
   const [isConfirmed, setIsConfirmed] = useState(false);
 
   if (!listing) return (<View style={styles.emptyContainer}><Text>Cart is empty</Text></View>);
@@ -17,6 +19,9 @@ const CartScreen = ({ route, navigation }) => {
 
   const handleConfirmOrder = () => {
     setIsConfirmed(true);
+
+    // Record impact: mealsSaved = quantity, CO2 = quantity * 0.5kg
+    addImpact(quantity, listing.vendorName);
 
     // Decrement inventory
     const newQuantity = Math.max(0, listing.quantity - quantity);

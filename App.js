@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from './context/AuthContext';
 import { ListingProvider } from './context/ListingContext';
+import { ImpactProvider } from './context/ImpactContext';
 
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
@@ -21,6 +22,7 @@ export default function App() {
     <SafeAreaProvider>
     <AuthProvider>
       <ListingProvider>
+      <ImpactProvider>
       <StatusBar style="auto" />
       <NavigationContainer>
         <Stack.Navigator 
@@ -72,6 +74,7 @@ export default function App() {
           />
         </Stack.Navigator>
       </NavigationContainer>
+      </ImpactProvider>
       </ListingProvider>
     </AuthProvider>
     </SafeAreaProvider>

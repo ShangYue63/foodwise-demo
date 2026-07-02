@@ -1,14 +1,14 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../styles/colors';
-import { impactData } from '../data/mockData';
+import { useImpact } from '../context/ImpactContext';
 
 const ImpactScreen = () => {
   const insets = useSafeAreaInsets();
-  const { totalMealsSaved, totalCO2Saved, totalVendors, totalCustomers, weeklyData, topVendors } = impactData;
-
-  const getMaxMeals = () => Math.max(...weeklyData.map(d => d.meals), 1);
+  const impact = useImpact();
+  const [timeRange, setTimeRange] = useState('monthly');
+  const data = impact[timeRange];
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -17,25 +17,44 @@ const ImpactScreen = () => {
         <Text style={styles.headerSubtext}>Together, we're making a difference</Text>
       </View>
 
-      <View style={styles.statsGrid}>
-        <View style={[styles.statCard, styles.statCardGreen]}><Text style={styles.statNumber}>{totalMealsSaved}</Text><Text style={styles.statLabel}>Meals Saved</Text><Text style={styles.statIcon}>🍽️</Text></View>
-        <View style={[styles.statCard, styles.statCardOrange]}><Text style={styles.statNumber}>{totalCO2Saved}kg</Text><Text style={styles.statLabel}>CO₂ Saved</Text><Text style={styles.statIcon}>🌱</Text></View>
-      </View>
-
-      <View style={styles.statsGrid}>
-        <View style={[styles.statCard, styles.statCardBlue]}><Text style={styles.statNumber}>{totalVendors}</Text><Text style={styles.statLabel}>Vendors</Text><Text style={styles.statIcon}>🏪</Text></View>
-        <View style={[styles.statCard, styles.statCardPurple]}><Text style={styles.statNumber}>{totalCustomers}</Text><Text style={styles.statLabel}>Customers</Text><Text style={styles.statIcon}>👥</Text></View>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Top Vendors</Text>
-        {topVendors.map((vendor, index) => (
-          <View key={index} style={styles.vendorCard}>
-            <View style={styles.vendorRank}><Text style={styles.vendorRankText}>#{index + 1}</Text></View>
-            <View style={styles.vendorInfo}><Text style={styles.vendorName}>{vendor.name}</Text><Text style={styles.vendorStats}>{vendor.saved} meals saved</Text></View>
-            <View style={styles.vendorBadge}><Text style={styles.vendorBadgeText}>{index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}</Text></View>
-          </View>
+      <View style={styles.timeRangeRow}>
+        {['daily', 'weekly', 'monthly'].map((range) => (
+          <TouchableOpacity
+            key={range}
+            style={[styles.timeRangeButton, timeRange === range && styles.timeRangeButtonActive]}
+            onPress={() => setTimeRange(range)}
+          >
+            <Text style={[styles.timeRangeText, timeRange === range && styles.timeRangeTextActive]}>
+              {range.charAt(0).toUpperCase() + range.slice(1)}
+            </Text>
+          </TouchableOpacity>
         ))}
+      </View>
+
+      <View style={styles.statsGrid}>
+        <View style={[styles.statCard, styles.statCardGreen]}>
+          <Text style={styles.statNumber}>{data.mealsSaved}</Text>
+          <Text style={styles.statLabel}>Meals Saved</Text>
+          <Text style={styles.statIcon}>🍽️</Text>
+        </View>
+        <View style={[styles.statCard, styles.statCardOrange]}>
+          <Text style={styles.statNumber}>{data.co2Saved}kg</Text>
+          <Text style={styles.statLabel}>CO₂ Saved</Text>
+          <Text style={styles.statIcon}>🌱</Text>
+        </View>
+      </View>
+
+      <View style={styles.statsGrid}>
+        <View style={[styles.statCard, styles.statCardBlue]}>
+          <Text style={styles.statNumber}>{data.vendors}</Text>
+          <Text style={styles.statLabel}>Vendors</Text>
+          <Text style={styles.statIcon}>🏪</Text>
+        </View>
+        <View style={[styles.statCard, styles.statCardPurple]}>
+          <Text style={styles.statNumber}>{impact.monthly.mealsSaved}</Text>
+          <Text style={styles.statLabel}>Total Meals</Text>
+          <Text style={styles.statIcon}>📊</Text>
+        </View>
       </View>
     </ScrollView>
   );
@@ -46,7 +65,12 @@ const styles = StyleSheet.create({
   header: { backgroundColor: colors.primary, paddingHorizontal: 24, paddingBottom: 32, alignItems: 'center' },
   headerTitle: { fontSize: 28, fontWeight: 'bold', color: colors.white },
   headerSubtext: { fontSize: 16, color: 'rgba(255,255,255,0.8)', marginTop: 4 },
-  statsGrid: { flexDirection: 'row', paddingHorizontal: 16, marginTop: -16, gap: 12, marginBottom: 32 },
+  timeRangeRow: { flexDirection: 'row', marginHorizontal: 16, marginTop: 16, marginBottom: 8, gap: 8 },
+  timeRangeButton: { flex: 1, paddingVertical: 10, borderRadius: 8, backgroundColor: colors.gray, alignItems: 'center' },
+  timeRangeButtonActive: { backgroundColor: colors.primary },
+  timeRangeText: { fontSize: 14, fontWeight: '600', color: colors.grayDark },
+  timeRangeTextActive: { color: colors.white },
+  statsGrid: { flexDirection: 'row', paddingHorizontal: 16, gap: 12, marginBottom: 16 },
   statCard: { flex: 1, backgroundColor: colors.white, borderRadius: 16, padding: 16, alignItems: 'center', shadowColor: colors.shadow, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 4, position: 'relative', overflow: 'hidden' },
   statCardGreen: { borderTopColor: colors.primary, borderTopWidth: 4 },
   statCardOrange: { borderTopColor: colors.secondary, borderTopWidth: 4 },
@@ -55,16 +79,6 @@ const styles = StyleSheet.create({
   statNumber: { fontSize: 28, fontWeight: 'bold', color: colors.dark, marginTop: 4 },
   statLabel: { fontSize: 12, color: colors.grayDark, marginTop: 2 },
   statIcon: { fontSize: 24, marginTop: 4 },
-  section: { backgroundColor: colors.white, borderRadius: 16, padding: 16, margin: 16, marginBottom: 8, shadowColor: colors.shadow, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 4 },
-  sectionTitle: { fontSize: 18, fontWeight: '600', color: colors.dark, marginBottom: 16 },
-  vendorCard: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: colors.gray },
-  vendorRank: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.gray, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
-  vendorRankText: { fontSize: 12, fontWeight: 'bold', color: colors.grayDark },
-  vendorInfo: { flex: 1 },
-  vendorName: { fontSize: 14, fontWeight: '500', color: colors.dark },
-  vendorStats: { fontSize: 12, color: colors.grayDark },
-  vendorBadge: { width: 32, height: 32, justifyContent: 'center', alignItems: 'center' },
-  vendorBadgeText: { fontSize: 24 },
 });
 
 export default ImpactScreen;
