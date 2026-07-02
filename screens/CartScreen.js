@@ -5,11 +5,13 @@ import { colors } from '../styles/colors';
 import Button from '../components/Button';
 import { useListings } from '../context/ListingContext';
 import { useImpact } from '../context/ImpactContext';
+import { useOrders } from '../context/OrdersContext';
 
 const CartScreen = ({ route, navigation }) => {
   const { listing, quantity } = route.params || {};
   const { listings, updateListing } = useListings();
   const { addImpact } = useImpact();
+  const { addOrder } = useOrders();
   const [isConfirmed, setIsConfirmed] = useState(false);
 
   if (!listing) return (<View style={styles.emptyContainer}><Text>Cart is empty</Text></View>);
@@ -40,10 +42,24 @@ const CartScreen = ({ route, navigation }) => {
     const newQuantity = Math.max(0, liveListing.quantity - quantity);
     updateListing(liveListing.id, { quantity: newQuantity });
 
+    // Save to shared orders context so vendor can see it
     const qrId = `FOODWISE-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
+    const newOrder = {
+      id: qrId,
+      listing: { ...liveListing },
+      listingId: liveListing.id,
+      vendorName: liveListing.vendorName,
+      customerName: 'Customer',  // placeholder; could come from auth context
+      quantity,
+      totalPrice,
+      pickupTime: new Date().toISOString(),
+      qrCode: qrId,
+    };
+    addOrder(newOrder);
+
     setTimeout(() => {
       navigation.navigate('QRCode', {
-        order: { id: qrId, listing: { ...liveListing, quantity: newQuantity }, quantity, totalPrice, pickupTime: new Date().toISOString() },
+        order: { ...newOrder, listing: { ...liveListing, quantity: newQuantity }, quantity, totalPrice },
       });
     }, 1000);
   };

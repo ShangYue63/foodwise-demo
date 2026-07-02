@@ -4,17 +4,16 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../styles/colors';
 import { useAuth } from '../../context/AuthContext';
+import { useOrders } from '../../context/OrdersContext';
 
 const VendorOrdersScreen = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
+  const { orders } = useOrders();
   const vendorName = user?.name || 'Your Store';
 
-  const recentOrders = [
-    { id: 'ORD-001', customer: 'Alice', items: 'Nasi Lemak × 2', status: 'Pending', time: '10 min ago' },
-    { id: 'ORD-002', customer: 'Bob', items: 'Chicken Rice × 1', status: 'Ready', time: '25 min ago' },
-    { id: 'ORD-003', customer: 'Carol', items: 'Roti Canai × 3', status: 'Picked Up', time: '1 hour ago' },
-  ];
+  // Show all orders in this demo (single device, no backend)
+  const recentOrders = orders;
 
   return (
     <View style={styles.container}>
@@ -31,28 +30,32 @@ const VendorOrdersScreen = ({ navigation }) => {
       <ScrollView showsVerticalScrollIndicator={false} style={styles.vendorScroll}>
         <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>Recent Orders</Text>
-          {recentOrders.map((order) => (
-            <TouchableOpacity
-              key={order.id}
-              style={styles.orderItem}
-              onPress={() => navigation.navigate('VendorOrderDetail', { order })}
-            >
-              <View style={styles.orderLeft}>
-                <Text style={styles.orderCustomer}>{order.customer}</Text>
-                <Text style={styles.orderItems}>{order.items}</Text>
-                <Text style={styles.orderTime}>{order.time}</Text>
-              </View>
-              <View style={[styles.orderStatus, 
-                { backgroundColor: order.status === 'Pending' ? '#FFF3E0' : 
-                  order.status === 'Ready' ? '#E8F5E9' : '#F5F5F5' }]}>
-                <Text style={[styles.orderStatusText, 
-                  { color: order.status === 'Pending' ? colors.secondary : 
-                    order.status === 'Ready' ? colors.success : colors.grayDark }]}>
-                  {order.status}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          ))}
+          {recentOrders.length === 0 ? (
+            <Text style={styles.emptyOrdersText}>No orders yet. Orders placed by customers will appear here.</Text>
+          ) : (
+            recentOrders.map((order) => (
+              <TouchableOpacity
+                key={order.id}
+                style={styles.orderItem}
+                onPress={() => navigation.navigate('VendorOrderDetail', { order })}
+              >
+                <View style={styles.orderLeft}>
+                  <Text style={styles.orderCustomer}>{order.customerName || 'Customer'}</Text>
+                  <Text style={styles.orderItems}>{order.listing?.foodName || 'Item'} × {order.quantity}</Text>
+                  <Text style={styles.orderTime}>{new Date(order.pickupTime).toLocaleString()}</Text>
+                </View>
+                <View style={[styles.orderStatus, 
+                  { backgroundColor: order.status === 'Pending' ? '#FFF3E0' : 
+                    order.status === 'Ready' ? '#E8F5E9' : '#F5F5F5' }]}>
+                  <Text style={[styles.orderStatusText, 
+                    { color: order.status === 'Pending' ? colors.secondary : 
+                      order.status === 'Ready' ? colors.success : colors.grayDark }]}>
+                    {order.status}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))
+          )}
         </View>
 
         <View style={{ height: 40 }} />
@@ -78,6 +81,7 @@ const styles = StyleSheet.create({
   orderTime: { fontSize: 12, color: '#999', marginTop: 2 },
   orderStatus: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
   orderStatusText: { fontSize: 12, fontWeight: '600' },
+  emptyOrdersText: { fontSize: 14, color: colors.grayDark, textAlign: 'center', paddingVertical: 20 },
 });
 
 export default VendorOrdersScreen;

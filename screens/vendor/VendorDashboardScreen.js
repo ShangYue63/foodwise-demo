@@ -5,29 +5,31 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../styles/colors';
 import { useListings } from '../../context/ListingContext';
 import { useAuth } from '../../context/AuthContext';
-
-const recentOrdersData = [
-  { id: 'ORD-001', customer: 'Alice', items: 'Nasi Lemak × 2', status: 'Pending', time: '10 min ago', listingId: '1', customerName: 'Alice', pickupTime: '2026-07-02 18:00' },
-  { id: 'ORD-002', customer: 'Bob', items: 'Chicken Rice × 1', status: 'Ready', time: '25 min ago', listingId: '2', customerName: 'Bob', pickupTime: '2026-07-02 17:30' },
-  { id: 'ORD-003', customer: 'Carol', items: 'Roti Canai × 3', status: 'Picked Up', time: '1 hour ago', listingId: '4', customerName: 'Carol', pickupTime: '2026-07-02 19:00' },
-];
+import { useOrders } from '../../context/OrdersContext';
 
 const VendorDashboardScreen = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const { listings } = useListings();
+  const { orders } = useOrders();
   const vendorName = user?.name || 'Your Store';
 
   const vendorListings = listings.filter(l => l.vendorName === vendorName);
+  // Show all orders in this demo (single device, no backend)
+  const vendorOrders = orders;
+
+  const totalOrdersCount = vendorOrders.length;
+  const pendingCount = vendorOrders.filter(o => o.status === 'Pending' || o.status === 'Ready').length;
+  const totalRevenue = vendorOrders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
 
   const vendorStats = {
     totalListings: vendorListings.length,
-    totalOrders: 24,
-    pendingPickups: 7,
-    revenue: 156.50,
+    totalOrders: totalOrdersCount,
+    pendingPickups: pendingCount,
+    revenue: totalRevenue,
   };
 
-  const recentOrders = recentOrdersData.slice(0, 3);
+  const recentOrders = vendorOrders.slice(0, 3);
 
   return (
     <View style={styles.container}>
@@ -73,29 +75,33 @@ const VendorDashboardScreen = ({ navigation }) => {
               <Text style={styles.viewAllText}>View All</Text>
             </TouchableOpacity>
           </View>
-          {recentOrders.map((order) => (
-            <TouchableOpacity
-              key={order.id}
-              style={styles.orderItem}
-              onPress={() => navigation.navigate('VendorOrderDetail', { order })}
-            >
-              <View style={styles.orderLeft}>
-                <Text style={styles.orderCustomer}>{order.customer}</Text>
-                <Text style={styles.orderItems}>{order.items}</Text>
-                <Text style={styles.orderTime}>{order.time}</Text>
-              </View>
-              <View style={[styles.orderStatus,
-                { backgroundColor: order.status === 'Pending' ? '#FFF3E0' :
-                  order.status === 'Ready' ? '#E8F5E9' : '#F5F5F5' }]}>
-                <Text style={[styles.orderStatusText,
-                  { color: order.status === 'Pending' ? colors.secondary :
-                    order.status === 'Ready' ? colors.success : colors.grayDark }]}>
-                  {order.status}
-                </Text>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color={colors.grayDark} style={{ marginLeft: 8 }} />
-            </TouchableOpacity>
-          ))}
+          {recentOrders.length === 0 ? (
+            <Text style={styles.emptyOrdersText}>No orders yet. Orders placed by customers will appear here.</Text>
+          ) : (
+            recentOrders.map((order) => (
+              <TouchableOpacity
+                key={order.id}
+                style={styles.orderItem}
+                onPress={() => navigation.navigate('VendorOrderDetail', { order })}
+              >
+                <View style={styles.orderLeft}>
+                <Text style={styles.orderCustomer}>{order.customerName || 'Customer'}</Text>
+                <Text style={styles.orderItems}>{order.listing?.foodName || 'Item'} × {order.quantity}</Text>
+                <Text style={styles.orderTime}>{new Date(order.pickupTime).toLocaleString()}</Text>
+                </View>
+                <View style={[styles.orderStatus,
+                  { backgroundColor: order.status === 'Pending' ? '#FFF3E0' :
+                    order.status === 'Ready' ? '#E8F5E9' : '#F5F5F5' }]}>
+                  <Text style={[styles.orderStatusText,
+                    { color: order.status === 'Pending' ? colors.secondary :
+                      order.status === 'Ready' ? colors.success : colors.grayDark }]}>
+                    {order.status}
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color={colors.grayDark} style={{ marginLeft: 8 }} />
+              </TouchableOpacity>
+            ))
+          )}
         </View>
 
         <View style={{ height: 40 }} />
@@ -127,6 +133,7 @@ const styles = StyleSheet.create({
   orderTime: { fontSize: 12, color: '#999', marginTop: 2 },
   orderStatus: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
   orderStatusText: { fontSize: 12, fontWeight: '600' },
+  emptyOrdersText: { fontSize: 14, color: colors.grayDark, textAlign: 'center', paddingVertical: 20 },
 });
 
 export default VendorDashboardScreen;

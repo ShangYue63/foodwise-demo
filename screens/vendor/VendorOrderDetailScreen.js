@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import QRCode from 'react-native-qrcode-svg';
 import { colors } from '../../styles/colors';
 import { useListings } from '../../context/ListingContext';
+import { useOrders } from '../../context/OrdersContext';
 
 const getStatusStyle = (status) => {
   switch (status) {
@@ -21,8 +22,9 @@ const getStatusStyle = (status) => {
 
 const VendorOrderDetailScreen = ({ route, navigation }) => {
   const insets = useSafeAreaInsets();
-  const { order } = route.params || {};
+  const { order, scanned } = route.params || {};
   const { listings } = useListings();
+  const { updateOrderStatus } = useOrders();
 
   if (!order) {
     return (
@@ -127,26 +129,51 @@ const VendorOrderDetailScreen = ({ route, navigation }) => {
 
         {/* Action Buttons */}
         {order.status === 'Pending' && (
-          <TouchableOpacity style={[styles.actionButton, { backgroundColor: colors.success }]} onPress={() => alert(`Order ${order.id} marked as Ready!`)}>
+          <TouchableOpacity
+            style={[styles.actionButton, { backgroundColor: colors.success }]}
+            onPress={() => {
+              updateOrderStatus(order.id, 'Ready');
+              navigation.goBack();
+            }}
+          >
             <Ionicons name="checkmark-circle-outline" size={22} color={colors.white} />
             <Text style={styles.actionButtonText}>Mark as Ready</Text>
           </TouchableOpacity>
         )}
 
         {order.status === 'Ready' && (
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => navigation.navigate('VendorScanner', { expectedOrder: order })}
-          >
-            <Ionicons name="scan-outline" size={22} color={colors.white} />
-            <Text style={styles.actionButtonText}>Scan QR Code to Confirm Pickup</Text>
-          </TouchableOpacity>
+          <>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('VendorScanner', { expectedOrder: order })}
+            >
+              <Ionicons name="scan-outline" size={22} color={colors.white} />
+              <Text style={styles.actionButtonText}>Scan QR Code to Confirm Pickup</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.actionButton, { backgroundColor: '#1565C0', marginTop: 12 }]}
+              onPress={() => {
+                updateOrderStatus(order.id, 'Picked Up');
+                navigation.goBack();
+              }}
+            >
+              <Ionicons name="hand-left-outline" size={22} color={colors.white} />
+              <Text style={styles.actionButtonText}>Mark as Picked Up (Manual)</Text>
+            </TouchableOpacity>
+          </>
         )}
 
         {order.status === 'Picked Up' && (
           <View style={styles.completedBanner}>
             <Ionicons name="checkmark-done-circle" size={24} color={colors.success} />
             <Text style={styles.completedText}>Order Completed</Text>
+          </View>
+        )}
+
+        {scanned && (
+          <View style={[styles.completedBanner, { backgroundColor: '#E8F5E9' }]}>
+            <Ionicons name="checkmark-done-circle" size={24} color={colors.success} />
+            <Text style={styles.completedText}>QR Code Verified! Order marked as Picked Up.</Text>
           </View>
         )}
 

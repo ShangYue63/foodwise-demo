@@ -4,10 +4,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { colors } from '../../styles/colors';
+import { useOrders } from '../../context/OrdersContext';
 
 const VendorScannerScreen = ({ route, navigation }) => {
   const insets = useSafeAreaInsets();
   const { expectedOrder } = route.params || {};
+  const { updateOrderStatus } = useOrders();
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [scanResult, setScanResult] = useState(null);
@@ -30,6 +32,10 @@ const VendorScannerScreen = ({ route, navigation }) => {
 
     if (isMatch) {
       setScanResult('success');
+      // Update order status in shared context
+      if (expectedOrder?.id) {
+        updateOrderStatus(expectedOrder.id, 'Picked Up');
+      }
       setTimeout(() => {
         // Navigate back and pass the updated order status
         navigation.navigate('VendorOrderDetail', {

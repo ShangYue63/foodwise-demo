@@ -5,27 +5,39 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../styles/colors';
 import { useListings } from '../context/ListingContext';
 import { useAuth } from '../context/AuthContext';
+import { useOrders } from '../context/OrdersContext';
 
 const VendorDashboard = ({ navigation, onLogout }) => {
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const { listings, addListing, updateListing } = useListings();
+  const { orders, updateOrderStatus } = useOrders();
   const vendorName = user?.name || 'Your Store';
 
   const vendorListings = listings.filter(l => l.vendorName === vendorName);
 
+  // Show all orders in this demo (single device, no backend)
+  const vendorOrders = orders;
+
+  const totalOrdersCount = vendorOrders.length;
+  const pendingCount = vendorOrders.filter(o => o.status === 'Pending' || o.status === 'Ready').length;
+  const totalRevenue = vendorOrders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
+
   const vendorStats = {
     totalListings: vendorListings.length,
-    totalOrders: 24,
-    pendingPickups: 7,
-    revenue: 156.50,
+    totalOrders: totalOrdersCount,
+    pendingPickups: pendingCount,
+    revenue: totalRevenue,
   };
 
-  const recentOrders = [
-    { id: 'ORD-001', customer: 'Alice', items: 'Nasi Lemak × 2', status: 'Pending', time: '10 min ago' },
-    { id: 'ORD-002', customer: 'Bob', items: 'Chicken Rice × 1', status: 'Ready', time: '25 min ago' },
-    { id: 'ORD-003', customer: 'Carol', items: 'Roti Canai × 3', status: 'Picked Up', time: '1 hour ago' },
-  ];
+  const recentOrders = vendorOrders.map(o => ({
+    id: o.id,
+    customer: o.customerName || 'Customer',
+    items: `${o.listing?.foodName || 'Item'} × ${o.quantity}`,
+    status: o.status,
+    time: new Date(o.pickupTime).toLocaleString(),
+    _raw: o,
+  }));
 
   const [modalVisible, setModalVisible] = useState(false);
   const [editingListing, setEditingListing] = useState(null);
@@ -70,12 +82,10 @@ const VendorDashboard = ({ navigation, onLogout }) => {
 
     const today = getTodayString();
 
-    // Build pickup start/end from user input or default to today's date + evening times
     let pickupStart = modalPickupStart.trim();
     let pickupEnd = modalPickupEnd.trim();
 
     if (pickupStart && !pickupStart.includes('-')) {
-      // User only entered a time like "18:00", prepend today's date
       pickupStart = `${today} ${pickupStart}`;
     }
     if (pickupEnd && !pickupEnd.includes('-')) {
@@ -165,31 +175,35 @@ const VendorDashboard = ({ navigation, onLogout }) => {
 
         <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>Recent Orders</Text>
-          {recentOrders.map((order) => (
-            <TouchableOpacity
-              key={order.id}
-              style={styles.orderItem}
-              onPress={() => {
-                setSelectedOrder(order);
-                setPickupModalVisible(true);
-              }}
-            >
-              <View style={styles.orderLeft}>
-                <Text style={styles.orderCustomer}>{order.customer}</Text>
-                <Text style={styles.orderItems}>{order.items}</Text>
-                <Text style={styles.orderTime}>{order.time}</Text>
-              </View>
-              <View style={[styles.orderStatus, 
-                { backgroundColor: order.status === 'Pending' ? '#FFF3E0' : 
-                  order.status === 'Ready' ? '#E8F5E9' : '#F5F5F5' }]}>
-                <Text style={[styles.orderStatusText, 
-                  { color: order.status === 'Pending' ? colors.secondary : 
-                    order.status === 'Ready' ? colors.success : colors.grayDark }]}>
-                  {order.status}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          ))}
+          {recentOrders.length === 0 ? (
+            <Text style={styles.emptyListingsText}>No orders yet. Orders placed by customers will appear here.</Text>
+          ) : (
+            recentOrders.map((order) => (
+              <TouchableOpacity
+                key={order.id}
+                style={styles.orderItem}
+                onPress={() => {
+                  setSelectedOrder(order);
+                  setPickupModalVisible(true);
+                }}
+              >
+                <View style={styles.orderLeft}>
+                  <Text style={styles.orderCustomer}>{order.customer}</Text>
+                  <Text style={styles.orderItems}>{order.items}</Text>
+                  <Text style={styles.orderTime}>{order.time}</Text>
+                </View>
+                <View style={[styles.orderStatus, 
+                  { backgroundColor: order.status === 'Pending' ? '#FFF3E0' : 
+                    order.status === 'Ready' ? '#E8F5E9' : '#F5F5F5' }]}>
+                  <Text style={[styles.orderStatusText, 
+                    { color: order.status === 'Pending' ? colors.secondary : 
+                      order.status === 'Ready' ? colors.success : colors.grayDark }]}>
+                    {order.status}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))
+          )}
         </View>
 
         <View style={styles.sectionCard}>
@@ -338,19 +352,43 @@ const VendorDashboard = ({ navigation, onLogout }) => {
 
                 {/* Status-based action buttons */}
                 {selectedOrder.status === 'Pending' && (
-                  <TouchableOpacity style={[styles.pickupActionButton, { backgroundColor: colors.success, marginTop: 20 }]} onPress={() => alert(`Order ${selectedOrder.id} marked as Ready!`)}>
+                  <TouchableOpacity
+                    style={[styles.pickupActionButton, { backgroundColor: colors.success, marginTop: 20 }]}
+                    onPress={() => {
+                      const orderId = selectedOrder._raw ? selectedOrder._raw.id : selectedOrder.id;
+                      updateOrderStatus(orderId, 'Ready');
+                      setPickupModalVisible(false);
+                    }}
+                  >
                     <Ionicons name="checkmark-circle-outline" size={20} color={colors.white} />
                     <Text style={styles.pickupActionText}>Mark as Ready</Text>
                   </TouchableOpacity>
                 )}
                 {selectedOrder.status === 'Ready' && (
-                  <TouchableOpacity style={[styles.pickupActionButton, { backgroundColor: colors.primary, marginTop: 20 }]} onPress={() => {
-                    setPickupModalVisible(false);
-                    navigation.navigate('VendorScanner', { expectedOrder: selectedOrder });
-                  }}>
-                    <Ionicons name="scan-outline" size={20} color={colors.white} />
-                    <Text style={styles.pickupActionText}>Scan QR Code to Confirm Pickup</Text>
-                  </TouchableOpacity>
+                  <>
+                    <TouchableOpacity
+                      style={[styles.pickupActionButton, { backgroundColor: colors.primary, marginTop: 20 }]}
+                      onPress={() => {
+                        setPickupModalVisible(false);
+                        const raw = selectedOrder._raw || selectedOrder;
+                        navigation.navigate('VendorScanner', { expectedOrder: raw });
+                      }}
+                    >
+                      <Ionicons name="scan-outline" size={20} color={colors.white} />
+                      <Text style={styles.pickupActionText}>Scan QR Code to Confirm Pickup</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.pickupActionButton, { backgroundColor: '#1565C0', marginTop: 12 }]}
+                      onPress={() => {
+                        const orderId = selectedOrder._raw ? selectedOrder._raw.id : selectedOrder.id;
+                        updateOrderStatus(orderId, 'Picked Up');
+                        setPickupModalVisible(false);
+                      }}
+                    >
+                      <Ionicons name="hand-left-outline" size={20} color={colors.white} />
+                      <Text style={styles.pickupActionText}>Mark as Picked Up (Manual)</Text>
+                    </TouchableOpacity>
+                  </>
                 )}
                 {selectedOrder.status === 'Picked Up' && (
                   <View style={[styles.pickupActionButton, { backgroundColor: '#E8F5E9', marginTop: 20, justifyContent: 'center' }]}>

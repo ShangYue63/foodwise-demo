@@ -6,6 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from './context/AuthContext';
 import { ListingProvider } from './context/ListingContext';
 import { ImpactProvider } from './context/ImpactContext';
+import { OrdersProvider } from './context/OrdersContext';
 
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
@@ -25,6 +26,7 @@ export default function App() {
     <AuthProvider>
       <ListingProvider>
       <ImpactProvider>
+      <OrdersProvider>
       <StatusBar style="auto" />
       <NavigationContainer>
         <Stack.Navigator 
@@ -86,6 +88,7 @@ export default function App() {
           />
         </Stack.Navigator>
       </NavigationContainer>
+      </OrdersProvider>
       </ImpactProvider>
       </ListingProvider>
     </AuthProvider>
