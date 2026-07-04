@@ -27,7 +27,9 @@ const LoginScreen = ({ navigation }) => {
     if (email && password) {
       setLoading(true);
       login(email, role, role === 'vendor' ? name : null);
-      navigation.navigate('Home', { role });
+      // Vendors go to the drawer navigator (burger menu with Dashboard/Orders/Listings submenus);
+      // customers go to the customer Home screen.
+      navigation.navigate(role === 'vendor' ? 'VendorDrawer' : 'Home', { role });
     }
   };
 

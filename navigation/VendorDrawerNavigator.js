@@ -1,6 +1,5 @@
-import React from 'react';
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Animated, Dimensions, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../styles/colors';
@@ -11,21 +10,27 @@ import VendorListingsScreen from '../screens/vendor/VendorListingsScreen';
 import VendorOrderDetailScreen from '../screens/vendor/VendorOrderDetailScreen';
 import VendorScannerScreen from '../screens/vendor/VendorScannerScreen';
 
-const Drawer = createDrawerNavigator();
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const DRAWER_WIDTH = 280;
 
-const CustomDrawerContent = ({ navigation, state, onLogout }) => {
-  const insets = useSafeAreaInsets();
+const SCREENS = {
+  VendorDashboard: { component: VendorDashboardScreen, inDrawer: true, label: 'Dashboard', icon: 'grid-outline' },
+  VendorOrders: { component: VendorOrdersScreen, inDrawer: true, label: 'Orders', icon: 'receipt-outline' },
+  VendorListings: { component: VendorListingsScreen, inDrawer: true, label: 'Listings', icon: 'list-outline' },
+  VendorOrderDetail: { component: VendorOrderDetailScreen, inDrawer: false },
+  VendorScanner: { component: VendorScannerScreen, inDrawer: false },
+};
+
+const CustomDrawerContent = ({ activeRoute, onNavigate, onLogout, insets }) => {
   const { logout } = useAuth();
 
-  const menuItems = [
-    { name: 'Dashboard', screen: 'VendorDashboard', icon: 'grid-outline' },
-    { name: 'Orders', screen: 'VendorOrders', icon: 'receipt-outline' },
-    { name: 'Listings', screen: 'VendorListings', icon: 'list-outline' },
-  ];
+  const menuItems = Object.entries(SCREENS)
+    .filter(([, config]) => config.inDrawer)
+    .map(([name, config]) => ({ name, ...config }));
 
   const handleLogout = () => {
     logout();
-    navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+    onLogout();
   };
 
   return (
@@ -37,12 +42,12 @@ const CustomDrawerContent = ({ navigation, state, onLogout }) => {
       </View>
       <View style={styles.menuContainer}>
         {menuItems.map((item) => {
-          const isActive = state.index === menuItems.findIndex(m => m.screen === item.screen);
+          const isActive = activeRoute === item.name;
           return (
             <TouchableOpacity
-              key={item.screen}
+              key={item.name}
               style={[styles.menuItem, isActive && styles.menuItemActive]}
-              onPress={() => navigation.navigate(item.screen)}
+              onPress={() => onNavigate(item.name)}
             >
               <Ionicons
                 name={item.icon}
@@ -50,7 +55,7 @@ const CustomDrawerContent = ({ navigation, state, onLogout }) => {
                 color={isActive ? colors.primary : colors.grayDark}
               />
               <Text style={[styles.menuItemText, isActive && styles.menuItemTextActive]}>
-                {item.name}
+                {item.label}
               </Text>
             </TouchableOpacity>
           );
@@ -66,38 +71,219 @@ const CustomDrawerContent = ({ navigation, state, onLogout }) => {
   );
 };
 
-const VendorDrawerNavigator = ({ onLogout }) => {
+const VendorDrawerNavigator = ({ navigation: parentNavigation, onLogout }) => {
+  const insets = useSafeAreaInsets();
+  const [routeStack, setRouteStack] = useState([{ name: 'VendorDashboard', params: {} }]);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const slideAnim = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
+  const overlayAnim = useRef(new Animated.Value(0)).current;
+  const focusListenersRef = useRef({});
+
+  const currentRoute = routeStack[routeStack.length - 1];
+
+  const notifyFocus = useCallback((routeName) => {
+    const listeners = focusListenersRef.current[routeName];
+    if (listeners) {
+      listeners.forEach((cb) => cb());
+    }
+  }, []);
+
+  const openDrawer = useCallback(() => {
+    setDrawerOpen(true);
+    Animated.parallel([
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+      Animated.timing(overlayAnim, {
+        toValue: 1,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [slideAnim, overlayAnim]);
+
+  const closeDrawer = useCallback(() => {
+    Animated.parallel([
+      Animated.timing(slideAnim, {
+        toValue: -DRAWER_WIDTH,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+      Animated.timing(overlayAnim, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+    ]).start(() => setDrawerOpen(false));
+  }, [slideAnim, overlayAnim]);
+
+  const toggleDrawer = useCallback(() => {
+    if (drawerOpen) {
+      closeDrawer();
+    } else {
+      openDrawer();
+    }
+  }, [drawerOpen, openDrawer, closeDrawer]);
+
+  const navigate = useCallback((name, params = {}) => {
+    if (!SCREENS[name]) {
+      console.warn(`[VendorDrawerNavigator] Unknown screen: ${name}`);
+      return;
+    }
+    // If navigating to a drawer root screen, reset the stack to it
+    if (SCREENS[name].inDrawer) {
+      setRouteStack([{ name, params }]);
+      // Notify focus after state update
+      setTimeout(() => notifyFocus(name), 0);
+    } else {
+      setRouteStack((prev) => [...prev, { name, params }]);
+      setTimeout(() => notifyFocus(name), 0);
+    }
+    closeDrawer();
+  }, [closeDrawer, notifyFocus]);
+
+  const goBack = useCallback(() => {
+    setRouteStack((prev) => {
+      if (prev.length <= 1) return prev;
+      const newStack = prev.slice(0, -1);
+      const prevRoute = newStack[newStack.length - 1];
+      setTimeout(() => notifyFocus(prevRoute.name), 0);
+      return newStack;
+    });
+  }, [notifyFocus]);
+
+  const reset = useCallback((state) => {
+    // Used for logout - navigate back to the root stack
+    if (state && state.routes && state.routes[0]) {
+      if (parentNavigation) {
+        parentNavigation.reset({ index: 0, routes: [{ name: state.routes[0].name }] });
+      } else if (onLogout) {
+        onLogout();
+      }
+    }
+  }, [parentNavigation, onLogout]);
+
+  const addListener = useCallback((eventName, callback) => {
+    if (eventName !== 'focus') return { remove: () => {} };
+    const routeName = currentRoute.name;
+    if (!focusListenersRef.current[routeName]) {
+      focusListenersRef.current[routeName] = new Set();
+    }
+    focusListenersRef.current[routeName].add(callback);
+    return {
+      remove: () => {
+        focusListenersRef.current[routeName]?.delete(callback);
+      },
+    };
+  }, [currentRoute.name]);
+
+  const navigation = {
+    toggleDrawer,
+    navigate,
+    goBack,
+    reset,
+    addListener,
+    getState: () => ({ routes: routeStack, index: routeStack.length - 1 }),
+    setOptions: () => {},
+  };
+
+  // Notify focus on initial mount
+  useEffect(() => {
+    notifyFocus('VendorDashboard');
+  }, [notifyFocus]);
+
+  const ScreenComponent = SCREENS[currentRoute.name]?.component;
+
+  const handleDrawerNavigate = (name) => {
+    navigate(name);
+  };
+
+  const handleLogoutFromDrawer = () => {
+    if (onLogout) {
+      onLogout();
+    }
+  };
+
   return (
-    <Drawer.Navigator
-      drawerContent={(props) => (
-        <CustomDrawerContent {...props} onLogout={onLogout} />
+    <View style={styles.container}>
+      {/* Active Screen */}
+      <View style={styles.screenContainer}>
+        {ScreenComponent ? (
+          <ScreenComponent
+            navigation={navigation}
+            route={{ name: currentRoute.name, params: currentRoute.params }}
+          />
+        ) : null}
+      </View>
+
+      {/* Overlay */}
+      {drawerOpen && (
+        <TouchableOpacity
+          style={StyleSheet.absoluteFill}
+          activeOpacity={1}
+          onPress={closeDrawer}
+        >
+          <Animated.View
+            style={[
+              styles.overlay,
+              {
+                opacity: overlayAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0, 0.5],
+                }),
+              },
+            ]}
+          />
+        </TouchableOpacity>
       )}
-      screenOptions={{
-        drawerType: 'front',
-        drawerStyle: {
-          width: 280,
-        },
-        headerShown: false,
-      }}
-    >
-      <Drawer.Screen name="VendorDashboard" component={VendorDashboardScreen} />
-      <Drawer.Screen name="VendorOrders" component={VendorOrdersScreen} />
-      <Drawer.Screen name="VendorListings" component={VendorListingsScreen} />
-      <Drawer.Screen
-        name="VendorOrderDetail"
-        component={VendorOrderDetailScreen}
-        options={{ drawerLabel: () => null, drawerItemStyle: { display: 'none' } }}
-      />
-      <Drawer.Screen
-        name="VendorScanner"
-        component={VendorScannerScreen}
-        options={{ drawerLabel: () => null, drawerItemStyle: { display: 'none' } }}
-      />
-    </Drawer.Navigator>
+
+      {/* Drawer */}
+      <Animated.View
+        style={[
+          styles.drawer,
+          {
+            width: DRAWER_WIDTH,
+            transform: [{ translateX: slideAnim }],
+          },
+        ]}
+      >
+        <CustomDrawerContent
+          activeRoute={SCREENS[currentRoute.name]?.inDrawer ? currentRoute.name : null}
+          onNavigate={handleDrawerNavigate}
+          onLogout={handleLogoutFromDrawer}
+          insets={insets}
+        />
+      </Animated.View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.gray,
+  },
+  screenContainer: {
+    flex: 1,
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  drawer: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: colors.white,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 2, height: 0 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+  },
   drawerContainer: {
     flex: 1,
     backgroundColor: colors.white,

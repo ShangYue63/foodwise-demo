@@ -1,3 +1,4 @@
+import 'react-native-gesture-handler';
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -15,8 +16,7 @@ import ListingDetailScreen from './screens/ListingDetailScreen';
 import CartScreen from './screens/CartScreen';
 import QRCodeScreen from './screens/QRCodeScreen';
 import ImpactScreen from './screens/ImpactScreen';
-import VendorScannerScreen from './screens/vendor/VendorScannerScreen';
-import VendorOrderDetailScreen from './screens/vendor/VendorOrderDetailScreen';
+import VendorDrawerNavigator from './navigation/VendorDrawerNavigator';
 
 const Stack = createStackNavigator();
 
@@ -77,13 +77,8 @@ export default function App() {
             options={{ title: 'Your Impact' }}
           />
           <Stack.Screen 
-            name="VendorScanner" 
-            component={VendorScannerScreen} 
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen 
-            name="VendorOrderDetail" 
-            component={VendorOrderDetailScreen} 
+            name="VendorDrawer" 
+            component={VendorDrawerNavigator} 
             options={{ headerShown: false }}
           />
         </Stack.Navigator>

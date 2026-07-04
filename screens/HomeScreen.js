@@ -4,7 +4,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../styles/colors';
 import ListingCard from '../components/ListingCard';
-import VendorDashboard from './VendorDashboard';
 import { useAuth } from '../context/AuthContext';
 import { useListings } from '../context/ListingContext';
 import { useImpact } from '../context/ImpactContext';
@@ -43,11 +42,6 @@ const HomeScreen = ({ navigation }) => {
     logout();
     navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
   };
-
-  // Vendor Dashboard View
-  if (role === 'vendor') {
-    return <VendorDashboard navigation={navigation} onLogout={handleLogout} />;
-  }
 
   // Customer View (original UI)
   const renderHeader = () => (

@@ -29,8 +29,6 @@ const VendorDashboardScreen = ({ navigation }) => {
     revenue: totalRevenue,
   };
 
-  const recentOrders = vendorOrders.slice(0, 3);
-
   return (
     <View style={styles.container}>
       <View style={[styles.vendorHeader, { paddingTop: insets.top + 16 }]}>
@@ -67,43 +65,6 @@ const VendorDashboardScreen = ({ navigation }) => {
           </View>
         </View>
 
-        {/* Recent Orders Section */}
-        <View style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recent Orders</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('VendorOrders')}>
-              <Text style={styles.viewAllText}>View All</Text>
-            </TouchableOpacity>
-          </View>
-          {recentOrders.length === 0 ? (
-            <Text style={styles.emptyOrdersText}>No orders yet. Orders placed by customers will appear here.</Text>
-          ) : (
-            recentOrders.map((order) => (
-              <TouchableOpacity
-                key={order.id}
-                style={styles.orderItem}
-                onPress={() => navigation.navigate('VendorOrderDetail', { order })}
-              >
-                <View style={styles.orderLeft}>
-                <Text style={styles.orderCustomer}>{order.customerName || 'Customer'}</Text>
-                <Text style={styles.orderItems}>{order.listing?.foodName || 'Item'} × {order.quantity}</Text>
-                <Text style={styles.orderTime}>{new Date(order.pickupTime).toLocaleString()}</Text>
-                </View>
-                <View style={[styles.orderStatus,
-                  { backgroundColor: order.status === 'Pending' ? '#FFF3E0' :
-                    order.status === 'Ready' ? '#E8F5E9' : '#F5F5F5' }]}>
-                  <Text style={[styles.orderStatusText,
-                    { color: order.status === 'Pending' ? colors.secondary :
-                      order.status === 'Ready' ? colors.success : colors.grayDark }]}>
-                    {order.status}
-                  </Text>
-                </View>
-                <Ionicons name="chevron-forward" size={18} color={colors.grayDark} style={{ marginLeft: 8 }} />
-              </TouchableOpacity>
-            ))
-          )}
-        </View>
-
         <View style={{ height: 40 }} />
       </ScrollView>
     </View>
@@ -122,18 +83,6 @@ const styles = StyleSheet.create({
   statCard: { width: '47%', borderRadius: 16, padding: 16, marginBottom: 8, shadowColor: colors.shadow, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 },
   statNumber: { fontSize: 20, fontWeight: 'bold', color: colors.dark, marginTop: 8 },
   statLabel: { fontSize: 13, color: colors.grayDark, marginTop: 2 },
-  sectionCard: { backgroundColor: colors.white, borderRadius: 16, marginHorizontal: 12, marginTop: 16, padding: 16, shadowColor: colors.shadow, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 },
-  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  sectionTitle: { fontSize: 18, fontWeight: '600', color: colors.dark },
-  viewAllText: { fontSize: 14, color: colors.primary, fontWeight: '600' },
-  orderItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: colors.gray },
-  orderLeft: { flex: 1 },
-  orderCustomer: { fontSize: 15, fontWeight: '600', color: colors.dark },
-  orderItems: { fontSize: 13, color: colors.grayDark, marginTop: 2 },
-  orderTime: { fontSize: 12, color: '#999', marginTop: 2 },
-  orderStatus: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
-  orderStatusText: { fontSize: 12, fontWeight: '600' },
-  emptyOrdersText: { fontSize: 14, color: colors.grayDark, textAlign: 'center', paddingVertical: 20 },
 });
 
 export default VendorDashboardScreen;
