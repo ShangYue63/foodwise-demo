@@ -134,49 +134,163 @@ const HomeScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.gray },
+  container: { flex: 1, backgroundColor: colors.grayLight }, // 浅灰背景
+  
   listContent: { paddingBottom: 20 },
-  header: { backgroundColor: colors.white, paddingTop: 16, paddingHorizontal: 16, paddingBottom: 8 },
+  
+  header: { 
+    backgroundColor: colors.white, 
+    paddingTop: 16, 
+    paddingHorizontal: 16, 
+    paddingBottom: 8,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
+  },
 
-  // Customer specific
-  customerHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  customerGreeting: { fontSize: 18, fontWeight: '600', color: colors.dark },
+  // Customer header
+  customerHeaderRow: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    marginBottom: 12 
+  },
+  customerGreeting: { 
+    fontSize: 20, 
+    fontWeight: '700', 
+    color: colors.primary, // 深绿
+  },
 
-  searchContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.gray, borderRadius: 12, paddingHorizontal: 16, marginBottom: 16 },
-  searchInput: { flex: 1, paddingVertical: 12, paddingHorizontal: 12, fontSize: 16 },
-  timeRangeRow: { flexDirection: 'row', marginBottom: 12, gap: 8 },
-  timeRangeButton: { flex: 1, paddingVertical: 8, borderRadius: 8, backgroundColor: colors.gray, alignItems: 'center' },
-  timeRangeButtonActive: { backgroundColor: colors.primary },
-  timeRangeText: { fontSize: 13, fontWeight: '600', color: colors.grayDark },
-  timeRangeTextActive: { color: colors.white },
-  impactCard: { flexDirection: 'row', backgroundColor: colors.primary, borderRadius: 16, padding: 16, marginBottom: 16, justifyContent: 'space-around' },
+  searchContainer: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: colors.grayLight, // 浅灰
+    borderRadius: 12, 
+    paddingHorizontal: 16, 
+    marginBottom: 16 
+  },
+  searchInput: { 
+    flex: 1, 
+    paddingVertical: 12, 
+    paddingHorizontal: 12, 
+    fontSize: 16 
+  },
+  
+  timeRangeRow: { 
+    flexDirection: 'row', 
+    marginBottom: 12, 
+    gap: 8 
+  },
+  timeRangeButton: { 
+    flex: 1, 
+    paddingVertical: 8, 
+    borderRadius: 8, 
+    backgroundColor: colors.grayLight, 
+    alignItems: 'center' 
+  },
+  timeRangeButtonActive: { 
+    backgroundColor: colors.primary, // 深绿
+  },
+  timeRangeText: { 
+    fontSize: 13, 
+    fontWeight: '600', 
+    color: colors.grayDark 
+  },
+  timeRangeTextActive: { 
+    color: colors.white 
+  },
+  
+  impactCard: { 
+    flexDirection: 'row', 
+    backgroundColor: colors.primary, // 深绿
+    borderRadius: 16, 
+    padding: 16, 
+    marginBottom: 16, 
+    justifyContent: 'space-around' 
+  },
   impactItem: { alignItems: 'center' },
-  impactNumber: { fontSize: 20, fontWeight: 'bold', color: colors.white },
-  impactLabel: { fontSize: 12, color: colors.white, opacity: 0.8 },
-  impactDivider: { width: 1, backgroundColor: 'rgba(255,255,255,0.3)' },
-  categoryContainer: { flexDirection: 'row', marginBottom: 8 },
-  categoryButton: { paddingHorizontal: 20, paddingVertical: 8, borderRadius: 20, marginRight: 8, backgroundColor: colors.gray },
-  categoryButtonActive: { backgroundColor: colors.primary },
-  categoryText: { fontSize: 14, fontWeight: '500', color: colors.grayDark },
-  categoryTextActive: { color: colors.white },
-  emptyContainer: { alignItems: 'center', justifyContent: 'center', padding: 40 },
-  emptyText: { fontSize: 18, fontWeight: '600', color: colors.dark, marginTop: 16 },
-  emptySubtext: { fontSize: 14, color: colors.grayDark, marginTop: 4 },
+  impactNumber: { 
+    fontSize: 20, 
+    fontWeight: 'bold', 
+    color: colors.white 
+  },
+  impactLabel: { 
+    fontSize: 12, 
+    color: colors.white, 
+    opacity: 0.8 
+  },
+  impactDivider: { 
+    width: 1, 
+    backgroundColor: 'rgba(255,255,255,0.3)' 
+  },
+  
+  categoryContainer: { 
+    flexDirection: 'row', 
+    marginBottom: 8 
+  },
+  categoryButton: { 
+    paddingHorizontal: 20, 
+    paddingVertical: 8, 
+    borderRadius: 20, 
+    marginRight: 8, 
+    backgroundColor: colors.grayLight 
+  },
+  categoryButtonActive: { 
+    backgroundColor: colors.primary, // 深绿
+  },
+  categoryText: { 
+    fontSize: 14, 
+    fontWeight: '500', 
+    color: colors.grayDark 
+  },
+  categoryTextActive: { 
+    color: colors.white 
+  },
+  
+  emptyContainer: { 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    padding: 40 
+  },
+  emptyText: { 
+    fontSize: 18, 
+    fontWeight: '600', 
+    color: colors.dark, 
+    marginTop: 16 
+  },
+  emptySubtext: { 
+    fontSize: 14, 
+    color: colors.grayDark, 
+    marginTop: 4 
+  },
 
   logoutButton: { padding: 8 },
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  
   debugButton: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 16,
-    backgroundColor: colors.gray,
+    backgroundColor: colors.grayLight,
     gap: 4,
   },
-  debugButtonText: { fontSize: 13, fontWeight: '600', color: colors.grayDark },
-  debugButtonTextActive: { color: colors.white },
-  debugButtonActive: { backgroundColor: colors.primary },
+  debugButtonText: { 
+    fontSize: 13, 
+    fontWeight: '600', 
+    color: colors.grayDark 
+  },
+  debugButtonTextActive: { 
+    color: colors.white 
+  },
+  debugButtonActive: { 
+    backgroundColor: colors.primary, 
+  },
 });
 
 export default HomeScreen;
