@@ -15,11 +15,12 @@ const BrowseScreen = ({ navigation }) => {
   
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [timeRange, setTimeRange] = useState('weekly');
 
   // Get unique categories from listings
   const categories = ['All', ...new Set(listings.map(item => item.category).filter(Boolean))];
 
-  // Filter listings based on search and category
+  // Filter listings based on search, category, and vendor
   const filteredListings = listings.filter((item) => {
     const matchesSearch = item.foodName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           item.vendorName.toLowerCase().includes(searchQuery.toLowerCase());
@@ -41,11 +42,7 @@ const BrowseScreen = ({ navigation }) => {
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <View style={styles.headerRow}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color={colors.dark} />
-          </TouchableOpacity>
           <Text style={styles.headerTitle}>Browse Surplus</Text>
-          <View style={styles.headerPlaceholder} />
         </View>
 
         {/* Search Bar */}
@@ -63,6 +60,21 @@ const BrowseScreen = ({ navigation }) => {
               <Ionicons name="close-circle" size={20} color={colors.grayDark} />
             </TouchableOpacity>
           )}
+        </View>
+
+        {/* Time Range */}
+        <View style={styles.timeRangeRow}>
+          {['daily', 'weekly', 'monthly'].map((range) => (
+            <TouchableOpacity
+              key={range}
+              style={[styles.timeRangeButton, timeRange === range && styles.timeRangeButtonActive]}
+              onPress={() => setTimeRange(range)}
+            >
+              <Text style={[styles.timeRangeText, timeRange === range && styles.timeRangeTextActive]}>
+                {range.charAt(0).toUpperCase() + range.slice(1)}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
 
         {/* Category Chips */}
@@ -127,16 +139,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
   },
-  backButton: {
-    padding: 4,
-  },
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
     color: colors.dark,
-  },
-  headerPlaceholder: {
-    width: 32,
   },
 
   searchContainer: {
@@ -152,6 +158,30 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 12,
     fontSize: 16,
+  },
+
+  timeRangeRow: {
+    flexDirection: 'row',
+    marginBottom: 12,
+    gap: 8,
+  },
+  timeRangeButton: {
+    flex: 1,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: colors.grayLight,
+    alignItems: 'center',
+  },
+  timeRangeButtonActive: {
+    backgroundColor: colors.primary,
+  },
+  timeRangeText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.grayDark,
+  },
+  timeRangeTextActive: {
+    color: colors.white,
   },
 
   categoryScroll: {
