@@ -22,7 +22,6 @@ const VendorAnalyticsScreen = ({ navigation }) => {
   // --- Smart Match Data ---
   const getSmartMatches = () => {
     return vendorListings.map(listing => {
-      // Simulate match score based on price, quantity, and order history
       const baseScore = 50;
       const priceScore = listing.price < 5 ? 20 : listing.price < 10 ? 10 : 0;
       const quantityScore = (listing.quantity || 0) > 5 ? 15 : (listing.quantity || 0) > 2 ? 8 : 0;
@@ -36,7 +35,6 @@ const VendorAnalyticsScreen = ({ navigation }) => {
 
   // --- Peak Hours Analysis ---
   const getPeakHours = () => {
-    // Simulated peak hours based on order times
     const orderTimes = vendorOrders.map(o => {
       const time = o.pickupTime || o.time;
       if (!time) return 19;
@@ -243,4 +241,37 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1, 
     borderBottomColor: colors.grayLight 
   },
-  matchItemLeft: { flexDirection: 'row',
+  matchItemLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  matchItemRank: { fontSize: 14, fontWeight: '700', color: colors.grayDark, minWidth: 30 },
+  matchItemName: { fontSize: 14, fontWeight: '600', color: colors.dark },
+  matchItemPrice: { fontSize: 12, color: colors.grayDark },
+  matchItemRight: { alignItems: 'flex-end', gap: 2 },
+  matchScoreBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+  matchScoreText: { fontSize: 14, fontWeight: '700' },
+  matchItemStatus: { fontSize: 11, color: colors.grayDark },
+
+  // Peak Hours
+  peakContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  peakTime: { fontSize: 18, fontWeight: '700', color: colors.dark },
+  peakConfidence: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  peakConfidenceLabel: { fontSize: 12, color: colors.grayDark },
+  peakConfidenceValue: { fontSize: 13, fontWeight: '700' },
+  peakHint: { fontSize: 12, color: colors.grayDark, marginTop: 8, fontStyle: 'italic' },
+
+  // Best Selling
+  bestItem: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    paddingVertical: 8, 
+    borderBottomWidth: 1, 
+    borderBottomColor: colors.grayLight 
+  },
+  bestItemRank: { fontSize: 14, fontWeight: '700', color: colors.gold, minWidth: 30 },
+  bestItemName: { fontSize: 14, fontWeight: '500', color: colors.dark, flex: 1 },
+  bestItemCount: { fontSize: 13, color: colors.grayDark },
+
+  // Tip
+  tipText: { fontSize: 14, color: colors.dark, lineHeight: 20 },
+});
+
+export default VendorAnalyticsScreen;
