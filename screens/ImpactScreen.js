@@ -18,18 +18,18 @@ const ImpactScreen = () => {
 
   // Calculate badge progress
   const getBadgeInfo = () => {
-    if (mealsSaved < 10) {
-      return { level: '🌱 Beginner', next: 10, progress: (mealsSaved / 10) * 100, badge: 'First Rescue' };
-    } else if (mealsSaved < 25) {
-      return { level: '🌿 Green Warrior', next: 25, progress: (mealsSaved / 25) * 100, badge: 'Green Warrior' };
-    } else if (mealsSaved < 50) {
-      return { level: '⭐ Community Star', next: 50, progress: (mealsSaved / 50) * 100, badge: 'Community Star' };
-    } else if (mealsSaved < 100) {
-      return { level: '♻️ Eco Champion', next: 100, progress: (mealsSaved / 100) * 100, badge: 'Eco Champion' };
-    } else {
-      return { level: '🏆 Zero Waste Hero', next: 200, progress: Math.min((mealsSaved / 200) * 100, 100), badge: 'Zero Waste Hero' };
-    }
-  };
+  if (mealsSaved < 10) {
+    return { level: '🌱 Beginner', next: 10, progress: (mealsSaved / 10) * 100, badge: 'First Rescue' };
+  } else if (mealsSaved < 25) {
+    return { level: '🌿 Green Warrior', next: 25, progress: (mealsSaved / 25) * 100, badge: 'Green Warrior' };
+  } else if (mealsSaved < 50) {
+    return { level: '⭐ Community Star', next: 50, progress: (mealsSaved / 50) * 100, badge: 'Community Star' };
+  } else if (mealsSaved < 100) {
+    return { level: '♻️ Eco Champion', next: 100, progress: (mealsSaved / 100) * 100, badge: 'Eco Champion' };
+  } else {
+    return { level: '🏆 Zero Waste Hero', next: null, progress: 100, badge: 'Zero Waste Hero' };
+  }
+};
 
   const badgeInfo = getBadgeInfo();
 
@@ -84,8 +84,12 @@ const ImpactScreen = () => {
           </View>
           <View style={styles.progressContainer}>
             <View style={styles.progressHeader}>
-              <Text style={styles.progressLabel}>Progress to {badgeInfo.badge}</Text>
-              <Text style={styles.progressValue}>{mealsSaved}/{badgeInfo.next}</Text>
+              <Text style={styles.progressLabel}>
+                {badgeInfo.next === null ? '🏆 Maximum Level!' : `Progress to ${badgeInfo.badge}`}
+              </Text>
+              <Text style={styles.progressValue}>
+                {badgeInfo.next === null ? 'MAX' : `${mealsSaved}/${badgeInfo.next}`}
+              </Text>
             </View>
             <View style={styles.progressBar}>
               <View style={[styles.progressFill, { width: `${Math.min(badgeInfo.progress, 100)}%` }]} />
