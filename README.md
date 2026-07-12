@@ -44,11 +44,16 @@ Install dependencies:
 npm install
 ```
 
-Additional Dependencies
+### Additional Dependencies
 This project uses React Navigation Bottom Tabs for the main navigation. Install it with:
 
 ```bash
 npm install @react-navigation/bottom-tabs
+```
+
+This project also uses react-native-qrcode-svg for QR code generation, which requires react-native-svg:
+```bash
+npm install react-native-svg
 ```
 
 ## Running the App
@@ -115,6 +120,7 @@ This will open the Expo developer tools in your browser and display a QR code in
 | **Vendor Orders** | View and manage incoming orders |
 | **Vendor Order Detail** | View specific order details and status |
 | **Vendor Scanner** | Scan customer QR codes for pickup verification |
+| **Add Listing** | Create new food listings with image upload and category selection |
 
 ### Home Screen Sections
 | Section | Description |
@@ -171,21 +177,30 @@ This will open the Expo developer tools in your browser and display a QR code in
 | Gray Light | `#EEEEEE` | Backgrounds, input fields |
 
 ## Updated Features (v1.0)
+✅ Bottom tab navigation (Home / Browse / Impact / Profile)
 
-- ✅ Bottom tab navigation (Home / Browse / Impact / Profile)
-- ✅ Blind Box Deals section with horizontal scrolling
-- ✅ Closing Soon section with two-column layout
-- ✅ Nearby Vendors section
-- ✅ Popular Now section
-- ✅ Eco Level and Badge Collection on Impact screen
-- ✅ Email and password validation on Login/Register
-- ✅ Personalized welcome message
-- ✅ Updated color theme (deep green + warm orange)
+✅ Blind Box Deals section with horizontal scrolling
+
+✅ Closing Soon section with two-column layout
+
+✅ Nearby Vendors section
+
+✅ Popular Now section
+
+✅ Eco Level and Badge Collection on Impact screen
+
+✅ Email and password validation on Login/Register
+
+✅ Personalized welcome message
+
+✅ Updated color theme (deep green + warm orange)
+
+✅ Vendor dashboard with AI Demand Prediction and Smart Match
+
+✅ Vendor badge system (Eco Level & Eco Score)
+
+✅ Add Listing screen with image upload and category selection
 
 ## License
 
 This project is for educational purposes as part of a university assignment.
-
-## Acknowledgments
-
-- Mystery box icons by [syafii5758 - Flaticon](https://www.flaticon.com/)
