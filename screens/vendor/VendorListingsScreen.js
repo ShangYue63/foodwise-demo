@@ -775,3 +775,10 @@ const styles = StyleSheet.create({
   },
   blindBoxInfoText: { 
     flex: 1, 
+    fontSize: 13, 
+    color: colors.grayDark, 
+    lineHeight: 18 
+  },
+});
+
+export default VendorListingsScreen;
