@@ -47,11 +47,41 @@ const VendorTabNavigator = () => {
         headerShown: false,
       })}
     >
-      <Tab.Screen name="Dashboard" component={VendorDashboardScreen} />
-      <Tab.Screen name="Listings" component={VendorListingsScreen} />
-      <Tab.Screen name="Orders" component={VendorOrdersScreen} />
-      <Tab.Screen name="Scanner" component={VendorScannerScreen} />
-      <Tab.Screen name="Analytics" component={VendorAnalyticsScreen} />
+      <Tab.Screen 
+        name="Dashboard" 
+        component={VendorDashboardScreen}
+        options={{
+          tabBarLabel: 'Home',
+        }}
+      />
+      <Tab.Screen 
+        name="Listings" 
+        component={VendorListingsScreen}
+        options={{
+          tabBarLabel: 'Listings',
+        }}
+      />
+      <Tab.Screen 
+        name="Orders" 
+        component={VendorOrdersScreen}
+        options={{
+          tabBarLabel: 'Orders',
+        }}
+      />
+      <Tab.Screen 
+        name="Scanner" 
+        component={VendorScannerScreen}
+        options={{
+          tabBarLabel: 'Scan',
+        }}
+      />
+      <Tab.Screen 
+        name="Analytics" 
+        component={VendorAnalyticsScreen}
+        options={{
+          tabBarLabel: 'Analytics',
+        }}
+      />
     </Tab.Navigator>
   );
 };
