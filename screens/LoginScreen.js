@@ -64,7 +64,9 @@ const LoginScreen = ({ navigation }) => {
 
     // 4. All validations passed - proceed with login
     setLoading(true);
-    login(email, role, role === 'vendor' ? name : null);
+    // Pass the name to login - for customers, use email prefix as display name
+    const displayName = role === 'vendor' ? name : email.split('@')[0];
+    login(email, role, role === 'vendor' ? name : displayName);
     navigation.navigate(role === 'vendor' ? 'VendorDrawer' : 'Home', { role });
   };
 
