@@ -51,18 +51,7 @@ const VendorOrdersScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={[styles.vendorHeader, { paddingTop: insets.top + 16 }]}>
-        <TouchableOpacity style={styles.menuButton} onPress={() => navigation.toggleDrawer()}>
-          <Ionicons name="menu" size={28} color={colors.white} />
-        </TouchableOpacity>
-        <View style={styles.headerTextContainer}>
-          <Text style={styles.vendorTitle}>{vendorName}</Text>
-          <Text style={styles.vendorSubtitle}>Recent Orders</Text>
-        </View>
-      </View>
-
-      <ScrollView showsVerticalScrollIndicator={false} style={styles.vendorScroll}>
+          <ScrollView showsVerticalScrollIndicator={false} style={styles.vendorScroll}>
         <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>📦 Orders Overview</Text>
 
